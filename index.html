@@ -1,9 +1,8 @@
 <!DOCTYPE html>
 <html>
-
 <head>
     <title>Patient Note Generator</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -31,8 +30,7 @@
             margin-bottom: .5em;
         }
 
-        input,
-        textarea {
+        input, textarea {
             width: 100%;
             padding: 0.5em;
             border: 1px solid #ddd;
@@ -57,30 +55,25 @@
             background-color: #0056b3;
         }
 
-        #addCustomSection {
-            background-color: #007BFF;
-            color: white;
-            padding: 0.5em;
-            border: none;
-            cursor: pointer;
-            margin-bottom: 1em;
-            border-radius: 3px;
+        #noteDisplay {
+            background-color: white;
+            padding: 2em;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
-        .custom-section {
-            display: flex;
-            flex-direction: column;
+        #noteDisplay h2 {
+            margin-top: 0;
+        }
+
+        #noteDisplay p {
+            margin: 0.5em 0;
         }
     </style>
 </head>
-
 <body>
     <h1>Patient Note Generator</h1>
     <form id="noteForm">
-        <div class="form-group">
-            <label for="patientID">Patient ID</label>
-            <input type="text" id="patientID" name="patientID" required>
-        </div>
         <div class="form-group">
             <label for="observation">Observation</label>
             <input type="text" id="observation" name="observation" required>
@@ -95,12 +88,16 @@
         </div>
         <div class="form-group">
             <label for="plan">Plan</label>
-            <textarea id="plan" name="plan" rows="4" required></textarea>
+            <input type="text" id="plan" name="plan" required>
         </div>
         <div id="customSections"></div>
         <button type="button" id="addCustomSection">+ Add Custom Section</button>
         <button type="submit">Generate Note</button>
     </form>
+
+    <div id="noteDisplay" style="display: none;">
+        <!-- Displayed content here -->
+    </div>
 
     <script>
         var customSections = document.getElementById('customSections');
@@ -113,44 +110,48 @@
         });
 
         document.getElementById('noteForm').addEventListener('submit', function (event) {
-            event.preventDefault(); // Stop the form from submitting normally
+            event.preventDefault();  // Stop the form from submitting normally
 
-            var doc = new jsPDF.jsPDF();
-
-            var patientID = document.getElementById('patientID').value;
             var observation = document.getElementById('observation').value;
             var diagnosis = document.getElementById('diagnosis').value;
             var impression = document.getElementById('impression').value;
             var plan = document.getElementById('plan').value;
 
-            doc.text('Patient ID: ' + patientID, 10, 10);
-            doc.text('Observation: ' + observation, 10, 20);
-            doc.text('Diagnosis: ' + diagnosis, 10, 30);
-            doc.text('Impression: ' + impression, 10, 40);
-            doc.text('Plan: ' + plan, 10, 50);
+            var noteContent = '<h2>Patient Note</h2>';
+            noteContent += '<p>Observation: ' + observation + '</p>';
+            noteContent += '<p>Diagnosis: ' + diagnosis + '</p>';
+            noteContent += '<p>Impression: ' + impression + '</p>';
+            noteContent += '<p>Plan: ' + plan + '</p>';
+            noteContent += '<p>Date: ' + new Date().toLocaleDateString() + '</p>';
+            noteContent += '<p>Signature: ________________________</p>';
 
-            // Adding custom sections
             var customTitles = document.querySelectorAll('.custom-title');
             var customContents = document.querySelectorAll('.custom-content');
-            var yPos = 60;
             for (var i = 0; i < customTitles.length; i++) {
-                doc.text(customTitles[i].value + ': ' + customContents[i].value, 10, yPos);
-                yPos += 10;
+                noteContent += '<h3>' + customTitles[i].value + '</h3>';
+                noteContent += '<p>' + customContents[i].value + '</p>';
             }
 
-            // Adding the date
-            var today = new Date();
-            var date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
-            doc.text('Date: ' + date, 10, yPos);
+            var noteDisplay = document.getElementById('noteDisplay');
+            noteDisplay.innerHTML = noteContent;
+            noteDisplay.style.display = 'block';
 
-            // Adding a line for the signature
-            yPos += 10;
-            doc.text('Signature:', 10, yPos);
-            doc.line(70, yPos, 150, yPos); // x1, y1, x2, y2
-
-            doc.save('PatientNote.pdf');
+            // Generate PDF
+            var opt = {
+                margin: 10,
+                filename: 'PatientNote.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            html2pdf().from(noteDisplay).set(opt).outputPdf().then(function (pdf) {
+                var blob = new Blob([pdf], { type: 'application/pdf' });
+                var link = document.createElement('a');
+                link.href = window.URL.createObjectURL(blob);
+                link.download = 'PatientNote.pdf';
+                link.click();
+            });
         });
     </script>
 </body>
-
 </html>
