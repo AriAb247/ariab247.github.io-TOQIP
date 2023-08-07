@@ -147,7 +147,7 @@
                 html2canvas: { scale: 2 },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
-            html2pdf().from(noteDisplay).set(opt).toPdf().outputPdf().then(function (pdf) {
+            html2pdf().from(noteDisplay).set(opt).outputPdf().then(function (pdf) {
                 var blob = new Blob([pdf], { type: 'application/pdf' });
                 var link = document.createElement('a');
                 link.href = window.URL.createObjectURL(blob);
@@ -161,4 +161,3 @@
 </body>
 
 </html>
-
