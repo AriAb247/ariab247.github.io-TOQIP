@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Patient Note Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 1em;
+            background-color: #f7f7f7;
+        }
+        form {
+            background-color: white;
+            padding: 2em;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2em;
+        }
+        .form-group {
+            margin-bottom: 1em;
+        }
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: .5em;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 0.5em;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            margin-bottom: .5em;
+            box-sizing: border-box;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 1em;
+            border: none;
+            color: white;
+            background-color: #007BFF;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #noteDisplay {
+            background-color: white;
+            padding: 2em;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        #noteDisplay h2 {
+            margin-top: 0;
+        }
+        #noteDisplay p {
+            margin: 0.5em 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Patient Note Generator</h1>
+    <form id="noteForm">
+        <div class="form-group" id="customSections"></div> <!-- Container for custom sections -->
+        <button type="button" id="addCustomSection">Add Custom Section</button> <!-- Button to add custom sections -->
+        <div class="form-group">
+            <label for="date">Date</label>
+            <input type="date" id="date" name="date" required>
+        </div>
+        <div class="form-group">
+            <label for="signature">Signature</label>
+            <input type="text" id="signature" name="signature">
+        </div>
+        <button type="submit">Generate Note</button>
+    </form>
+
+    <div id="noteDisplay" style="display: none;">
+        <h2>Patient Note</h2>
+        <p id="displayPatientName"></p>
+        <p id="displayPatientID"></p>
+        <p id="displayDiagnosis"></p>
+        <p id="displayMedication"></p>
+        <h3>Progress Notes</h3>
+        <p id="displayProgressNotes"></p>
+        <p id="displayDate"></p>
+        <p id="displaySignature"></p>
+        <button id="printButton">Print Note</button>
+    </div>
+
+    <script>
+        document.getElementById('noteForm').addEventListener('submit', function(event) {
+            event.preventDefault();  // Stop the form from submitting normally
+
+            var patientName = document.getElementById('patientName').value;
+            var patientID = document.getElementById('patientID').value;
+            var diagnosis = document.getElementById('diagnosis').value;
+            var medication = document.getElementById('medication').value;
+            var progressNotes = document.getElementById('progressNotes').value;
+
+            document.getElementById('displayPatientName').innerText = 'Patient Name: ' + patientName;
+            document.getElementById('displayPatientID').innerText = 'Patient ID: ' + patientID;
+            document.getElementById('displayDiagnosis').innerText = 'Diagnosis: ' + diagnosis;
+            document.getElementById('displayMedication').innerText = 'Medication: ' + medication;
+            document.getElementById('displayProgressNotes').innerText = progressNotes;
+
+            document.getElementById('noteDisplay').style.display = 'block';
+        });
+
+        document.getElementById('date').addEventListener('change', function() {
+            var date = document.getElementById('date').value;
+            document.getElementById('displayDate').innerText = 'Date: ' + date;
+        });
+
+        document.getElementById('signature').addEventListener('change', function() {
+            var signature = document.getElementById('signature').value;
+            document.getElementById('displaySignature').innerText = 'Signature: ' + signature;
+        });
+
+        document.getElementById('addCustomSection').addEventListener('click', function() {
+            var container = document.getElementById('customSections');
+            var div = document.createElement('div');
+            div.className = 'form-group';
+
+            var label = document.createElement('label');
+            label.innerText = 'Custom Section';
+            div.appendChild(label);
+
+            var inputTitle = document.createElement('input');
+            inputTitle.type = 'text';
+            inputTitle.placeholder = 'Title';
+            div.appendChild(inputTitle);
+
+            var inputValue = document.createElement('input');
+            inputValue.type = 'text';
+            inputValue.placeholder = 'Value';
+            div.appendChild(inputValue);
+
+            container.appendChild(div);
+        });
+
+        document.getElementById('printButton').addEventListener('click', function() {
+            window.print();
+        });
+    </script>
+</body>
+</html>
