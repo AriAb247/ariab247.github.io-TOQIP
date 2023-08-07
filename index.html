@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Patient Note Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -93,11 +94,10 @@
         <button type="button" id="addCustomSection">+ Add Custom Section</button>
         <button type="submit">Generate Note</button>
     </form>
-
+    <button id="downloadPDF">Download PDF</button>
     <div id="noteDisplay" style="display: none;">
         <!-- Displayed content here -->
     </div>
-    <button id="printButton">Print PDF</button>
 
     <script>
         var customSections = document.getElementById('customSections');
@@ -110,7 +110,7 @@
         });
 
         document.getElementById('noteForm').addEventListener('submit', function (event) {
-            event.preventDefault();  // Stop the form from submitting normally
+            event.preventDefault();
 
             var observation = document.getElementById('observation').value;
             var diagnosis = document.getElementById('diagnosis').value;
@@ -137,13 +137,24 @@
             noteDisplay.style.display = 'block';
         });
 
-        document.getElementById('printButton').addEventListener('click', function() {
-            var printContents = document.getElementById('noteDisplay').innerHTML;
-            var originalContents = document.body.innerHTML;
+        document.getElementById('downloadPDF').addEventListener('click', function() {
+            var noteDisplay = document.getElementById('noteDisplay');
 
-            document.body.innerHTML = printContents;
-            window.print();
-            document.body.innerHTML = originalContents;
+            // Generate PDF
+            var opt = {
+                margin: 10,
+                filename: 'PatientNote.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            html2pdf().from(noteDisplay).set(opt).toPdf().outputPdf().then(function (pdf) {
+                var blob = new Blob([pdf], { type: 'application/pdf' });
+                var link = document.createElement('a');
+                link.href = window.URL.createObjectURL(blob);
+                link.download = 'PatientNote.pdf';
+                link.click();
+            });
         });
     </script>
 </body>
