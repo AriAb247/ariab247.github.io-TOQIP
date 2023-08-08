@@ -179,31 +179,31 @@ yPosition += 10;
             });
         }
 
-   function printPDF() {
+  function printPDF() {
     var pdfCanvas = document.getElementById('pdf-canvas');
     var dataURL = pdfCanvas.toDataURL('image/jpeg', 1.0);
 
-    // Create a hidden iframe
-    var iframe = document.createElement('iframe');
-    iframe.style.visibility = 'hidden';
-    iframe.style.position = 'fixed';
-    iframe.style.right = '0';
-    iframe.style.bottom = '0';
-    document.body.appendChild(iframe);
+    // Create a hidden div
+    var printDiv = document.createElement('div');
+    printDiv.style.visibility = 'hidden';
+    printDiv.style.position = 'fixed';
+    printDiv.style.right = '0';
+    printDiv.style.bottom = '0';
+    printDiv.innerHTML = "<img src='" + dataURL + "'>";
+    document.body.appendChild(printDiv);
 
-    // Write the content to the iframe
-    iframe.contentWindow.document.write("<html><head><title>Print PDF</title></head><body><img src='" + dataURL + "'></body></html>");
-    iframe.contentWindow.document.close();
+    // Use window.print to print the content
+    var printContent = printDiv.innerHTML;
+    var originalContent = document.body.innerHTML;
 
-    // Print the iframe's content
-    iframe.contentWindow.focus();
-    iframe.contentWindow.print();
+    document.body.innerHTML = printContent;
+    window.print();
+    document.body.innerHTML = originalContent;
 
-    // Remove the iframe after printing
-    setTimeout(function() {
-        document.body.removeChild(iframe);
-    }, 100);
+    // Remove the div after printing
+    document.body.removeChild(printDiv);
 }
+
 
     </script>
 </body>
