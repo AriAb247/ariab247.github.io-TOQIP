@@ -179,23 +179,30 @@ yPosition += 10;
             });
         }
 
-     function printPDF() {
-            var pdfCanvas = document.getElementById('pdf-canvas');
-            var dataURL = pdfCanvas.toDataURL('image/jpeg', 1.0);
-            var windowContent = '<!DOCTYPE html>';
-            windowContent += '<html>';
-            windowContent += '<head><title>Print PDF</title></head>';
-            windowContent += '<body>';
-            windowContent += '<img src="' + dataURL + '">';
-            windowContent += '</body>';
-            windowContent += '</html>';
-            var printWin = window.open('', '_blank', 'width=800,height=600');
-            printWin.document.open();
-            printWin.document.write(windowContent);
-            printWin.document.close();
-            printWin.focus();
-            printWin.print();
-        }
+   function printPDF() {
+    var pdfCanvas = document.getElementById('pdf-canvas');
+    var dataURL = pdfCanvas.toDataURL('image/jpeg', 1.0);
+    var windowContent = '<!DOCTYPE html>';
+    windowContent += '<html>';
+    windowContent += '<head><title>Print PDF</title></head>';
+    windowContent += '<body>';
+    windowContent += '<img src="' + dataURL + '">';
+    windowContent += '</body>';
+    windowContent += '</html>';
+    var printWin = window.open('', '_blank', 'width=800,height=600');
+    printWin.document.open();
+    printWin.document.write(windowContent);
+    printWin.document.close();
+    
+    // Wait for a moment before printing and closing
+    printWin.addEventListener('afterprint', function () {
+        printWin.close();
+    });
+    setTimeout(function () {
+        printWin.focus();
+        printWin.print();
+    }, 1000);
+}
     </script>
 </body>
 </html>
