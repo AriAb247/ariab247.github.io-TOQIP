@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Clinical Notes Generator</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -68,6 +69,18 @@
         button:hover {
             background-color: #0056b3;
         }
+        .pdf-container {
+            border: 1px solid #dcdcdc;
+            border-radius: 5px;
+            padding: 20px;
+            margin-top: 20px;
+            background-color: #fff;
+        }
+        canvas {
+            display: block;
+            max-width: 100%;
+            margin: auto;
+        }
     </style>
 </head>
 <body>
@@ -92,6 +105,10 @@
         <div class="custom-sections" id="custom-sections"></div>
         <button onclick="addCustomSection()">Add Custom Section</button>
         <button onclick="generatePDF()">Generate PDF</button>
+        <div class="pdf-container" id="pdf-container">
+            <canvas id="pdf-canvas"></canvas>
+            <button onclick="printPDF()">Print PDF</button>
+        </div>
     </div>
     <script>
         function addCustomSection() {
@@ -110,10 +127,6 @@
         function generatePDF() {
             var { jsPDF } = window.jspdf;
             var doc = new jsPDF();
-
-            doc.setFontSize(18);
-            doc.text('Clinical Notes', 10, 10);
-            doc.setFontSize(12);
 
             var yPosition = 20;
 
@@ -136,12 +149,52 @@
                 addSection(title, text);
             }
 
-            var date = new Date().toLocaleDateString();
-            doc.text('Date: ' + date, 10, yPosition);
+            // Add Date
+            var date = new Date();
+            doc.text('Date: ' + date.toLocaleDateString(), 10, yPosition);
             yPosition += 10;
-            doc.text('Signature:', 10, yPosition);
 
-            doc.save('clinical_notes.pdf');
+            // Add Signature Line
+            doc.text('Signature: ____________________________', 10, yPosition);
+
+            // Save PDF to Blob
+            var blobPDF = new Blob([doc.output('arraybuffer')], {type: 'application/pdf'});
+
+            // Render PDF
+            var pdfCanvas = document.getElementById('pdf-canvas');
+            var loadingTask = pdfjsLib.getDocument(URL.createObjectURL(blobPDF));
+            loadingTask.promise.then(function(pdf) {
+                pdf.getPage(1).then(function(page) {
+                    var scale = 1;
+                    var viewport = page.getViewport({ scale: scale });
+                    pdfCanvas.width = viewport.width;
+                    pdfCanvas.height = viewport.height;
+                    var renderContext = {
+                        canvasContext: pdfCanvas.getContext('2d'),
+                        viewport: viewport
+                    };
+                    page.render(renderContext);
+                });
+            });
+        }
+
+        function printPDF() {
+            var pdfCanvas = document.getElementById('pdf-canvas');
+            var dataURL = pdfCanvas.toDataURL('image/jpeg', 1.0);
+            var windowContent = '<!DOCTYPE html>';
+            windowContent += '<html>';
+            windowContent += '<head><title>Print PDF</title></head>';
+            windowContent += '<body>';
+            windowContent += '<img src="' + dataURL + '">';
+            windowContent += '</body>';
+            windowContent += '</html>';
+            var printWin = window.open('', '_blank', 'width=800,height=600');
+            printWin.document.open();
+            printWin.document.write(windowContent);
+            printWin.document.close();
+            printWin.focus();
+            printWin.print();
+            printWin.close();
         }
     </script>
 </body>
