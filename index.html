@@ -179,23 +179,24 @@
         }
 
         function printPDF() {
-            var pdfCanvas = document.getElementById('pdf-canvas');
-            var dataURL = pdfCanvas.toDataURL('image/jpeg', 1.0);
-            var windowContent = '<!DOCTYPE html>';
-            windowContent += '<html>';
-            windowContent += '<head><title>Print PDF</title></head>';
-            windowContent += '<body>';
-            windowContent += '<img src="' + dataURL + '">';
-            windowContent += '</body>';
-            windowContent += '</html>';
-            var printWin = window.open('', '_blank', 'width=800,height=600');
-            printWin.document.open();
-            printWin.document.write(windowContent);
-            printWin.document.close();
-            printWin.focus();
-            printWin.print();
-            printWin.close();
-        }
+    var pdfCanvas = document.getElementById('pdf-canvas');
+    var dataURL = pdfCanvas.toDataURL('image/jpeg', 1.0);
+
+    // Create an iframe
+    var iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    document.body.appendChild(iframe);
+
+    // Write the image to the iframe
+    iframe.contentWindow.document.write("<html><head><title>Print PDF</title></head><body><img src='" + dataURL + "'></body></html>");
+    iframe.contentWindow.document.close();
+
+    // Print the iframe's content
+    iframe.contentWindow.print();
+
+    // Remove the iframe after printing
+    document.body.removeChild(iframe);
+}
     </script>
 </body>
 </html>
